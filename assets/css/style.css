@@ -1,0 +1,342 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif
+}
+
+.menu-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* color: #333; */
+  z-index: 1000; /* Asegura que el botón esté encima del menú */
+}
+
+.nav-lateral {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 60px;               /* Menú colapsado */
+  height: 100vh;             /* Ocupa toda la altura de la pantalla */
+  background-color: #f2c9fb;
+  color: white;
+  transition: width 0.3s;    /* Animación al expandir/colapsar */
+  overflow: hidden;
+  z-index: 500;              /* Menú por encima del contenido */
+  display: flex;
+  flex-direction: column;
+  align-items: center;       /* Centra los elementos horizontalmente */
+}
+
+.nav-lateral.expanded {
+  width: 200px;            /* Ancho del menú expandido */
+  background-color: #f2c9fb;
+}
+
+.nav-lateral ul {
+  list-style: none;
+}
+
+.nav-lateral ul li {
+  margin: 12px -5px ;
+  width: 100%;
+}
+
+.nav-lateral ul li a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  /* padding: 10px;
+  width: 100%; */
+}
+
+.icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.text {
+  display: none;            /* Ocultar texto cuando el menú está colapsado */
+}
+.text-color {
+  display: none;            /* Ocultar texto cuando el menú está colapsado */
+}
+
+.nav-lateral.expanded .text {
+  display: inline;          /* Mostrar texto cuando el menú está expandido */
+}
+.nav-lateral.expanded .text-color {
+  display: inline;          /* Mostrar texto cuando el menú está expandido */
+  color: black;
+}
+
+main {
+  margin-right: 60px;       /* Ajusta margen para el menú colapsado */
+  padding: 20px;
+  transition: margin-right 0.3s;
+}
+
+.nav-lateral.expanded ~ main {
+  margin-right: 200px;      /* Ajusta margen para el menú expandido */
+}
+
+.container-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e692f8; /* Color de fondo lila */
+  border-radius: 10px;       /* Bordes redondeados */
+  padding: 20px;
+  margin: 20px;
+  width: 200px;
+  height: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle un poco de profundidad */
+}
+.card-white {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;       /* Bordes redondeados */
+  padding: 20px;
+  margin: 20px;
+  width: 200px;
+  height: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle un poco de profundidad */
+}
+
+.count {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+.title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+
+.center-data-container {
+  position: relative;
+}
+
+.center-data {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 22px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #f2c9fb;
+  cursor: pointer;
+}
+
+.nav-name{
+  margin-right: 20px;
+}
+
+.nav-name#alert{
+  margin-right: 80px;
+}
+
+.table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.card-order {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  /* align-items: right; */
+  border-radius: 10px;       /* Bordes redondeados */
+  padding: 20px;
+  margin-top: 35px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle un poco de profundidad */
+}
+.table td {
+  text-align: center;
+}
+.table tr {
+  border-color: #EBEBEB;
+  border-width: 1px;
+  border-style: solid;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+}
+.title-company {
+  border-color: #EBEBEB;
+  border-width: 1px;
+  border-style: solid;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+}
+
+/* Estilo general para los elementos de la lista */
+.nav-lateral ul li {
+  padding: 5px;
+  margin-right: 25px;
+}
+.only-color{
+  background-color: #e692f8;
+  /* padding: 0; */
+  margin: 0;
+}
+.menu li{
+  margin: 0;
+}
+
+.record-title{
+  padding: 2%;
+  display: flex;
+  justify-content: space-between;
+  color: #444444;
+}
+.record-title a {
+  color: #444444;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  /* padding: 10px;
+  width: 100%; */
+}
+.formulario {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+  gap: 20px; /* Espacio entre elementos */
+  width: 100%;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.submit-btn {
+  grid-column: span 3; /* Ocupa las 3 columnas */
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #f2c9fb;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #e692f8;
+}
+.cancel-btn {
+  grid-column: span 3; /* Ocupa las 3 columnas */
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #ebebeb;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background-color: #9e9e9e;
+}
+.form-actions {
+  grid-column: span 3; /* Ocupa las 3 columnas */
+  display: flex;
+  justify-content: center; /* Centra los botones horizontalmente */
+  gap: 10px; /* Espacio entre los botones */
+  margin-top: 20px; /* Espacio entre los botones y los campos de arriba */
+}
+
+.logo {
+ 
+  background-color: #f2c9fb;
+  padding: 1px;
+  border:solid ;
+  border-width: 1px;
+  border-color: #9e9e9e;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.cuerpo{
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+}
+.a {
+  margin-top: 1rem;
+  color: #000;
+}
+.a:hover{
+  color: #f2c9fb;
+}
+
+.input{
+  background-color:#e1e1e1;
+  border-radius: 6px;
+  border-style: solid;
+  margin-bottom: 1rem;
+}
+h1{
+    margin: 1rem 1rem 0.5rem;
+}
+
+h2{
+  font-size: 1.5rem;
+  margin: 1.5rem;
+}
+.formulario-items{
+  margin-top: 10px;
+  /* display: grid;
+  grid-template-columns: repeat(5, 1fr);  */
+  gap: 20px; /* Espacio entre elementos */
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+}
