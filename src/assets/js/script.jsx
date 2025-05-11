@@ -1,9 +1,9 @@
-const toggleMenu = () => {
+export const toggleMenu = () => {
   const nav = document.querySelector('.nav-lateral');
   nav.classList.toggle('expanded');
 }
 
-const addRow = () => {
+export const addRow = () => {
   // Obtener los valores de los campos de entrada
   const item = document.getElementById("item").value;
   const itemSelect = document.getElementById("item");
@@ -42,7 +42,7 @@ const addRow = () => {
   const deleteLink = document.createElement("a");
   deleteLink.className = "a"; 
   deleteLink.textContent = "Eliminar"; 
-  deleteLink.onclick = () => { deleteRow(this); };
+  deleteLink.onclick = (e) => { deleteRow(e.target); };
 
   cellDelete.appendChild(deleteLink);
   // Limpiar los campos de entrada
@@ -53,23 +53,7 @@ const addRow = () => {
   document.getElementById("tax").value = "";
 }
 
-const redirectRecord = (bttn) => {
-  const urls = {
-    bttn1: 'salesorder.html',
-    bttn2: 'employee.html',
-    bttn3: 'customer.html',
-    bttn4: 'card.html',
-    bttn5: 'item.html'
-  };
-  const url = urls[bttn]
-  if (url) {
-    window.location.href = url;
-  } else {
-    console.error("No se encontró la URL para el botón con ID:", buttonId);
-  }
-}
-
-const cancelRow = () => {
+export const cancelRow = () => {
   document.getElementById("item").value = "";
   document.getElementById("quantity").value = "";
   document.getElementById("description").value = "";

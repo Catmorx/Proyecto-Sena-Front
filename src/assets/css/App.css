@@ -74,7 +74,9 @@
   display: inline;          /* Mostrar texto cuando el menú está expandido */
   color: black;
 }
-
+.h2 {
+  margin: 0rem;
+}
 main {
   margin-right: 60px;       /* Ajusta margen para el menú colapsado */
   padding: 20px;
@@ -249,7 +251,7 @@ input, select {
   padding: 15px;
   font-size: 16px;
   font-weight: bold;
-  color: #ffffff;
+  color: #6a6a6a;
   background-color: #f2c9fb;
   border: none;
   border-radius: 4px;
@@ -264,7 +266,7 @@ input, select {
   padding: 15px;
   font-size: 16px;
   font-weight: bold;
-  color: #ffffff;
+  color: #6a6a6a;
   background-color: #ebebeb;
   border: none;
   border-radius: 4px;
@@ -314,7 +316,8 @@ input, select {
   margin-bottom: 1rem;
 }
 h1{
-    margin: 1rem 1rem 0.5rem;
+    margin: .5rem;
+    font-size: 17pt;
 }
 
 h2{
@@ -340,3 +343,4 @@ table {
   margin-top: 20px;
   text-align: center;
 }
+
