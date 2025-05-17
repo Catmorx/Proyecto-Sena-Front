@@ -4,7 +4,6 @@ import { API_URL } from '../../config/config.jsx'
 import { FormInput } from '../components/FormInput.jsx'
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext.jsx";
-import { useCookies } from "react-cookie";
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -13,7 +12,7 @@ export const Login = () => {
         e.preventDefault()
         const uri = `${API_URL}/api/login`
         const method = "POST"
-        console.log('formData', formData)
+        // console.log('formData', formData)
         const res = await fetch(uri, {
             method: method,
             headers: {

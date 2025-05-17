@@ -15,11 +15,11 @@ export const Item = () => {
     const { token, logout } = useContext(AuthContext);
     async function onSubmit(e) {
         e.preventDefault()
-        console.log('ids', [id, id === "news", isCreating])
+        // console.log('ids', [id, id === "news", isCreating])
         const uri = isCreating ? `${API_URL}/api/item` : `${API_URL}/api/item/${id}`
         const method = isCreating ? "POST" : "PUT"
         const dataToSend = { ...formData }; // Haces una copia nueva
-        console.log('dataToSend', dataToSend);
+        // console.log('dataToSend', dataToSend);
 
         const res = await fetch(uri, {
             method: method,
@@ -29,8 +29,8 @@ export const Item = () => {
 
         })
 
-        const ok = await res.json()
-        console.log('ok', ok)
+        await res.json()
+        // console.log('ok', ok)
         navigate("/item")
     }
     const [technicalDatas, setTechnicalDatas] = useState([]);
@@ -67,7 +67,7 @@ export const Item = () => {
             if (id !== 'news') {
                 const res = await fetch(`${API_URL}/api/item/${id}`);
                 data = await res.json();
-                console.log('id', data)
+                // console.log('id', data)
             }
 
             setFormData({
@@ -123,7 +123,7 @@ export const Item = () => {
                 </div>
                 {!id && (
                     <div>
-                        <table>
+                        <table className='table'>
                             <thead>
                                 <tr>
                                     <th>UPC</th>
@@ -135,10 +135,10 @@ export const Item = () => {
                             <tbody>
                                 {items.map((item) => (
                                     <tr key={item.id_item}>
-                                        <td>{item.code_upc}</td>
-                                        <td>{item.comercial_name}</td>
-                                        <td>{item.description}</td>
-                                        <td>
+                                        <td data-label="UPC">{item.code_upc}</td>
+                                        <td data-label="Nombre">{item.comercial_name}</td>
+                                        <td data-label="Descripción">{item.description}</td>
+                                        <td data-label="Acciones">
                                             <button className="submit-btn" onClick={() => {
                                                 navigate(`/item/${item.id_item}`)
                                             }}>Editar</button>

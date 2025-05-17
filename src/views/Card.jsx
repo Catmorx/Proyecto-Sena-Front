@@ -20,11 +20,12 @@ export const Card = () => {
         madeYarn: '',
         typeFabric: '',
         printedFabric: 0,
-        date: new Date().toISOString().split('T')[0], // yyyy-mm-dd
+        // date: new Date().toISOString().split('T')[0], // yyyy-mm-dd
     });
 
     const fetchCardById = async (id) => {
         const res = await fetch(`${API_URL}/api/technicalData/${id}`);
+        
         const data = await res.json();
         const card = data?.[0] || {};
         setFormData({
@@ -34,7 +35,7 @@ export const Card = () => {
             madeYarn: card.made_yarn || '',
             typeFabric: card.type_fabric || '',
             printedFabric: card.printed_fabric || 0,
-            date: card.created_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+            // date: card.created_date?.split('T')[0] || new Date().toISOString().split('T')[0],
         });
     };
 
@@ -65,15 +66,16 @@ export const Card = () => {
         const uri = isCreating
             ? `${API_URL}/api/technicalData`
             : `${API_URL}/api/technicalData/${id}`;
+        
         const method = isCreating ? "POST" : "PUT";
-        console.log('formdata', formData)
+        // console.log('formdata', formData)
         const res = await fetch(uri, {
             method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
         });
-        const result = await res.json();
-        console.log('saved', result);
+        await res.json();
+        // console.log('saved', result);
         navigate("/card");
     };
 
@@ -97,7 +99,7 @@ export const Card = () => {
                 </div>
 
                 {!id && (
-                    <table>
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -110,11 +112,11 @@ export const Card = () => {
                         <tbody>
                             {cards.map(card => (
                                 <tr key={card.id_technical_data}>
-                                    <td>{card.name}</td>
-                                    <td>{card.type_fabric}</td>
-                                    <td>{card.made_yarn}</td>
-                                    <td>{card.created_date?.split('T')[0]}</td>
-                                    <td>
+                                    <td data-label="Nombre">{card.name}</td>
+                                    <td data-label="Tipo de Tela">{card.type_fabric}</td>
+                                    <td data-label="Hilo">{card.made_yarn}</td>
+                                    <td data-label="Fecha">{card.created_date?.split('T')[0]}</td>
+                                    <td data-label="Acciones">
                                         <button className="submit-btn" onClick={() => navigate(`/card/${card.id_technical_data}`)}>Editar</button>
                                     </td>
                                 </tr>

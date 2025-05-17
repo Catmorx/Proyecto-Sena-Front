@@ -15,11 +15,11 @@ export const Employee = () => {
     const { token, logout } = useContext(AuthContext);
     async function onSubmit(e) {
         e.preventDefault()
-        console.log('ids', [id, id === "news", isCreating])
+        // console.log('ids', [id, id === "news", isCreating])
         const uri = isCreating ? `${API_URL}/api/entity` : `${API_URL}/api/entity/${id}`
         const method = isCreating ? "POST" : "PUT"
         const dataToSend = { ...formData }; // Haces una copia nueva
-        console.log('dataToSend', dataToSend);
+        // console.log('dataToSend', dataToSend);
 
         const res = await fetch(uri, {
             method: method,
@@ -29,8 +29,8 @@ export const Employee = () => {
 
         })
 
-        const ok = await res.json()
-        console.log('ok', ok)
+        await res.json()
+        // console.log('ok', ok)
         navigate("/employee")
     }
     const [healthEntities, setHealthEntities] = useState([]);
@@ -81,7 +81,7 @@ export const Employee = () => {
             if (id !== 'news') {
                 const res = await fetch(`${API_URL}/api/entity/${id}`);
                 data = await res.json();
-                console.log('id', data)
+                // console.log('id', data)
             }
 
             setFormData({
@@ -148,7 +148,7 @@ export const Employee = () => {
                 </div>
                 {!id && (
                     <div>
-                        <table>
+                        <table className='table'>
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -160,10 +160,10 @@ export const Employee = () => {
                             <tbody>
                                 {employees.map((employee) => (
                                     <tr key={employee.id_entity}>
-                                        <td>{employee.first_name} {employee.last_name}</td>
-                                        <td>{employee.health_entity_id_health}</td>
-                                        <td>{employee.email}</td>
-                                        <td>
+                                        <td data-label="Nombre">{employee.first_name} {employee.last_name}</td>
+                                        <td data-label="EPS">{employee.health_entity_id_health}</td>
+                                        <td data-label="Email">{employee.email}</td>
+                                        <td data-label="Acciones">
                                             <button className="submit-btn" onClick={() => {
                                                 navigate(`/employee/${employee.id_entity}`)
                                             }}>Editar</button>

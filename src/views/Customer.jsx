@@ -15,11 +15,11 @@ export const Customer = () => {
     const navigate = useNavigate();
     async function onSubmit(e) {
         e.preventDefault()
-        console.log('ids', [id, id === "news", isCreating])
+        // console.log('ids', [id, id === "news", isCreating])
         const uri = isCreating ? `${API_URL}/api/entity` : `${API_URL}/api/entity/${id}`
         const method = isCreating ? "POST" : "PUT"
         const dataToSend = { ...formData }; // Haces una copia nueva
-        console.log('dataToSend', dataToSend);
+        // console.log('dataToSend', dataToSend);
 
         const res = await fetch(uri, {
             method: method,
@@ -29,8 +29,8 @@ export const Customer = () => {
 
         })
 
-        const ok = await res.json()
-        console.log('ok', ok)
+        await res.json()
+        // console.log('ok', ok)
         navigate("/customer")
     }
 
@@ -82,7 +82,7 @@ export const Customer = () => {
             if (id !== 'news') {
                 const res = await fetch(`${API_URL}/api/entity/${id}`);
                 data = await res.json();
-                console.log('id', data)
+                // console.log('id', data)
             }
 
             setFormData({
@@ -150,7 +150,7 @@ export const Customer = () => {
                 {!id && (
                     <div>
                         {/* Aquí muestras la lista de clientes */}
-                        <table>
+                        <table className='table'>
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -162,10 +162,10 @@ export const Customer = () => {
                             <tbody>
                                 {customers.map((customer) => (
                                     <tr key={customer.id_entity}>
-                                        <td>{customer.first_name} {customer.last_name}</td>
-                                        <td>{customer.company_name}</td>
-                                        <td>{customer.email}</td>
-                                        <td>
+                                        <td data-label="Nombre">{customer.first_name} {customer.last_name}</td>
+                                        <td data-label="Razón Social">{customer.company_name}</td>
+                                        <td data-label="Email">{customer.email}</td>
+                                        <td data-label="Acciones">
                                             <button className="submit-btn" onClick={() => {
                                                 navigate(`/customer/${customer.id_entity}`)
                                             }}>Editar</button>

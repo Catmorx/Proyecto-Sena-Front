@@ -1,4 +1,3 @@
-import { cancelRow } from "../assets/js/script.jsx";
 import { Nav } from '../components/Nav.jsx'
 import { Header } from '../components/Header.jsx'
 import { useParams, Link, useNavigate } from "react-router-dom";
@@ -16,7 +15,7 @@ export const Order = () => {
     const { token, logout } = useContext(AuthContext);
     async function onSubmit(e) {
         e.preventDefault()
-        console.log('ids', [id, id === "news", isCreating])
+        // console.log('ids', [id, id === "news", isCreating])
         const uri = isCreating ? `${API_URL}/api/order` : `${API_URL}/api/order/${id}`
         const method = isCreating ? "POST" : "PUT"
         const totalCalculated = formData.items.reduce((acc, item) => {
@@ -54,9 +53,9 @@ export const Order = () => {
                         "Content-Type": "application/json",
                     }, body: JSON.stringify(itemsToDelete)
                 })
-                const ok = await res.json()
-                console.log('delete', ok)
-                
+                await res.json()
+                // console.log('delete', ok)
+
             }
         }
         const res = await fetch(uri, {
@@ -67,8 +66,8 @@ export const Order = () => {
 
         })
 
-        const ok = await res.json()
-        console.log('send order', ok)
+        await res.json()
+        // console.log('send order', ok)
         navigate("/orders")
     }
     const [items, setItems] = useState([]);
@@ -181,6 +180,22 @@ export const Order = () => {
         fetchItems();
     }, [id]);
 
+    const cancelNewItem = (e) => {
+        e.preventDefault();
+        setNewItem({
+            item_id_item: '',
+            quantity: '',
+            description: '',
+            unit_price: '',
+            tax_percentage: 0,
+            discount_percentage: 0,
+            tax_amount: 0,
+            total_amount: 0,
+            id_order_item: '',
+            discount_amount: 0
+        });
+    };
+
     const addNewItem = (e) => {
         e.preventDefault();
 
@@ -192,13 +207,14 @@ export const Order = () => {
         const tax = parseFloat(newItem.tax_percentage || 0);
         const discount = parseFloat(newItem.discount_percentage || 0);
         const baseAmount = unitPrice * quantity;
-        
+
         const discountAmount = (baseAmount) * (discount / 100);
         const taxAmount = (baseAmount) * (tax / 100);
         const total = (baseAmount + taxAmount) - discountAmount;
-        console.log( 'baseAmount', baseAmount, 'taxAmount', taxAmount, 'discountAmount', discountAmount,'total', total, )
+        // console.log('baseAmount', baseAmount, 'taxAmount', taxAmount, 'discountAmount', discountAmount, 'total', total,)
         const finalItem = {
             ...newItem,
+            item_id_item: Number(newItem.item_id_item),
             total_amount: total.toFixed(2),
             tax_amount: taxAmount.toFixed(2),
             discount_amount: discountAmount.toFixed(2),
@@ -226,7 +242,9 @@ export const Order = () => {
 
     const updateItem = (index, field, value) => {
         const updatedItems = [...formData.items];
-        updatedItems[index][field] = value;
+
+        updatedItems[index][field] = field === 'item_id_item' ? Number(value) : value;
+
         setFormData({ ...formData, items: updatedItems });
     };
 
@@ -242,7 +260,7 @@ export const Order = () => {
         const tax = parseFloat(item.tax_percentage || 0);
         const discount = parseFloat(item.discount_percentage || 0);
         const baseAmount = unitPrice * quantity;
-        
+
         const discountAmount = (baseAmount) * (discount / 100);
         const taxAmount = (baseAmount) * (tax / 100);
         const total = (baseAmount + taxAmount) - discountAmount;
@@ -250,6 +268,7 @@ export const Order = () => {
         const updatedItems = [...formData.items];
         updatedItems[index] = {
             ...item,
+            quantity: quantity,
             total_amount: total.toFixed(2),
             tax_amount: taxAmount.toFixed(2),
             discount_amount: discountAmount.toFixed(2),
@@ -290,12 +309,12 @@ export const Order = () => {
                 </div>
                 {!id && (
                     <div>
-                        <table>
+                        <table className="table">
                             <thead>
                                 <tr>
                                     <th>Número de Transacción</th>
                                     <th>Cliente</th>
-                                    <th>Date</th>
+                                    <th>Fecha</th>
                                     <th>Nota</th>
                                     <th>Subtotal</th>
                                     <th>Descuento</th>
@@ -307,15 +326,15 @@ export const Order = () => {
                             <tbody>
                                 {orders.map((transaction) => (
                                     <tr key={transaction.id_orders}>
-                                        <td>OR-{transaction.id_orders}</td>
-                                        <td>{transaction.entity_id_entity}</td>
-                                        <td>{transaction.created_date.split(' ')[0]}</td>
-                                        <td>{transaction.memo_transaction}</td>
-                                        <td>$ {transaction.subtotal}</td>
-                                        <td>$ {transaction.discount_amount}</td>
-                                        <td>$ {transaction.total}</td>
-                                        <td>$ {transaction.tax_amount}</td>
-                                        <td>
+                                        <td data-label="Número de Transacción">OR-{transaction.id_orders}</td>
+                                        <td data-label="Cliente">{transaction.entity_id_entity}</td>
+                                        <td data-label="Fecha">{transaction.created_date.split(' ')[0]}</td>
+                                        <td data-label="Nota">{transaction.memo_transaction}</td>
+                                        <td data-label="Subtotal">$ {transaction.subtotal}</td>
+                                        <td data-label="Descuento">$ {transaction.discount_amount}</td>
+                                        <td data-label="Total de Impuestos">$ {transaction.total}</td>
+                                        <td data-label="Total">$ {transaction.tax_amount}</td>
+                                        <td data-label="Acciones">
                                             <button className="submit-btn" onClick={() => {
                                                 navigate(`/orders/${transaction.id_orders}`)
                                             }}>Editar</button>
@@ -353,7 +372,7 @@ export const Order = () => {
                                 }))}
                                 required
                             />
-                             <FormInput label="Fecha" type="date" id="date" value={formData.date} disabled />
+                            <FormInput label="Fecha" type="date" id="date" value={formData.date} disabled />
                             <div className="form-group">
                                 <label>Número de Transacción</label>
                                 <p>{id == "news" ? "A generar" : 'OR-' + id}</p>
@@ -364,6 +383,7 @@ export const Order = () => {
                             <table id="itemsTable">
                                 <thead>
                                     <tr>
+                                        <th className="hidden">ID </th>
                                         <th>Artículo *</th>
                                         <th>Cantidad *</th>
                                         <th>Descripción *</th>
@@ -377,12 +397,13 @@ export const Order = () => {
                                 <tbody>
                                     {formData.items.map((item, index) => (
                                         <tr
-                                            key={item.id_order_item || index}
+                                            key={item.id_order_item || `new-${index}`}
                                             onClick={() => {
                                                 if (editingIndex !== index) setEditingIndex(index);
                                             }}
                                         >
-                                            <td hidden>
+                                            <td data-label="ID" className="hidden"
+                                            >
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         type="number"
@@ -393,7 +414,7 @@ export const Order = () => {
                                                     item.id_order_item
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Artículo * ">
                                                 {editingIndex === index ? (
                                                     <FormSelect
                                                         value={item.item_id_item}
@@ -407,7 +428,7 @@ export const Order = () => {
                                                     items.find(i => i.id_item === item.item_id_item)?.comercial_name || ''
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Cantidad * ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         type="number"
@@ -418,7 +439,7 @@ export const Order = () => {
                                                     item.quantity
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Descripción * ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         value={item.description}
@@ -428,7 +449,7 @@ export const Order = () => {
                                                     item.description
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Tarifa * ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         value={item.unit_price}
@@ -439,7 +460,7 @@ export const Order = () => {
                                                     item.unit_price
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Impuesto% * ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         value={item.tax_percentage}
@@ -450,7 +471,7 @@ export const Order = () => {
                                                     item.tax_percentage
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Descuento% * ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         value={item.discount_percentage}
@@ -461,7 +482,7 @@ export const Order = () => {
                                                     item.discount_percentage
                                                 )}
                                             </td>
-                                            <td>
+                                            <td data-label="Importe Total ">
                                                 {editingIndex === index ? (
                                                     <FormInput
                                                         value={item.total_amount}
@@ -500,50 +521,55 @@ export const Order = () => {
 
                                     {/* Línea vacía adicional */}
                                     <tr>
-                                        <td>
+                                        <td data-label="ID" className="hidden"><FormInput
+                                            type="number"
+
+                                            readOnly
+                                        /></td>
+                                        <td data-label="Artículo *">
                                             <FormSelect
                                                 value={newItem.item_id_item}
                                                 onChange={(e) => handleNewItemChange('item_id_item', e.target.value)}
                                                 options={items.map((i) => ({ value: i.id_item, label: i.comercial_name }))}
                                             />
                                         </td>
-                                        <td>
+                                        <td data-label="Cantidad *">
                                             <FormInput
                                                 type="number"
                                                 value={newItem.quantity}
                                                 onChange={(e) => handleNewItemChange('quantity', e.target.value)}
                                             />
                                         </td>
-                                        <td>
+                                        <td data-label="Descripción *">
                                             <FormInput
                                                 value={newItem.description}
                                                 onChange={(e) => handleNewItemChange('description', e.target.value)}
                                             />
                                         </td>
-                                        <td>
+                                        <td data-label="Tarifa *">
                                             <FormInput
                                                 type="number"
                                                 value={newItem.unit_price}
                                                 onChange={(e) => handleNewItemChange('unit_price', e.target.value)}
                                             />
                                         </td>
-                                        <td>
+                                        <td data-label="Impuesto% *">
                                             <FormInput
                                                 type="number"
                                                 value={newItem.tax_percentage}
                                                 onChange={(e) => handleNewItemChange('tax_percentage', e.target.value)}
                                             />
                                         </td>
-                                        <td>
+                                        <td data-label="Descuento * ">
                                             <FormInput
                                                 type="number"
                                                 value={newItem.discount_percentage}
                                                 onChange={(e) => handleNewItemChange('discount_percentage', e.target.value)}
                                             />
                                         </td>
-                                    
+
                                         <td></td>
-                                        <td> </td>
+                                        <td></td>
 
                                     </tr>
                                 </tbody>
@@ -551,7 +577,7 @@ export const Order = () => {
                             <button className="submit-btn" onClick={addNewItem} type="button">
                                 Agregar Artículo
                             </button>
-                            <button className="cancel-btn" onClick={(e) => cancelRow(e)} type="button">
+                            <button className="cancel-btn" onClick={cancelNewItem} type="button">
                                 Cancelar Artículo
                             </button>
                         </div>

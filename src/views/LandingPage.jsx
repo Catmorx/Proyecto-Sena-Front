@@ -30,8 +30,8 @@ export const LandingPage = () => {
     };
     const [items, setItems] = useState([]);
     const [orders, setOrders] = useState([]);
-    console.log('items', items)
-    console.log('orders', orders)
+    // console.log('items', items)
+    // console.log('orders', orders)
     useEffect(() => {
         const fetchItems = async () => {
             try {
@@ -156,11 +156,11 @@ export const LandingPage = () => {
                                 <tbody>
                                     {orders.slice(0, 5).map((order) => (
                                         <tr key={order.id_orders}>
-                                            <td>OR-{order.id_orders}</td>
-                                            <td>{new Date(order.created_date).toLocaleDateString()}</td>
-                                            <td>$ {parseFloat(order.subtotal || 0).toLocaleString()}</td>
-                                            <td>$ {parseFloat(order.tax_amount || 0).toLocaleString()}</td>
-                                            <td>$ {parseFloat(order.total || 0).toLocaleString()}</td>
+                                            <td data-label="Número de Transacción">OR-{order.id_orders}</td>
+                                            <td data-label="Fecha">{new Date(order.created_date).toLocaleDateString()}</td>
+                                            <td data-label="Monto">$ {parseFloat(order.subtotal || 0).toLocaleString()}</td>
+                                            <td data-label="IVA">$ {parseFloat(order.tax_amount || 0).toLocaleString()}</td>
+                                            <td data-label="Total">$ {parseFloat(order.total || 0).toLocaleString()}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -171,9 +171,9 @@ export const LandingPage = () => {
                 </div>
                 <div className="card-order">
                     <h2>Artículos</h2>
-                    <div className="table">
+                    <div className="table articles">
                         <div>
-                            <table className="table">
+                            <table className="table articles">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
@@ -186,11 +186,11 @@ export const LandingPage = () => {
                                 <tbody>
                                     {items.slice(0, 5).map((item) => (
                                         <tr key={item.id_item}>
-                                            <td>{item.comercial_name}</td>
-                                            <td>{new Date(item.created_date).toLocaleDateString()}</td>
-                                            <td>{item.cost}</td>
-                                            <td>{item.technical_data_id_technical_data || 'N/A'}</td>
-                                            <td>{item.rate}</td>
+                                            <td data-label="Nombre">{item.comercial_name}</td>
+                                            <td data-label="Fecha de Creación">{new Date(item.created_date).toLocaleDateString()}</td>
+                                            <td data-label="Costo Materia Prima">$ {item.cost}</td>
+                                            <td data-label="Ficha Técnica">{item.technical_data_id_technical_data || 'N/A'}</td>
+                                            <td data-label="Costo de Venta">$ {item.rate}</td>
                                         </tr>
                                     ))}
                                 </tbody>

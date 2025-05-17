@@ -15,11 +15,11 @@ export const Adress = () => {
     const { token, logout } = useContext(AuthContext);
     async function onSubmit(e) {
         e.preventDefault()
-        console.log('ids', [id, id === "news", isCreating])
+        // console.log('ids', [id, id === "news", isCreating])
         const uri = isCreating ? `${API_URL}/api/adress` : `${API_URL}/api/adress/${id}`
         const method = isCreating ? "POST" : "PUT"
         const dataToSend = { ...formData }; // Haces una copia nueva
-        console.log('dataToSend', dataToSend);
+        // console.log('dataToSend', dataToSend);
 
         const res = await fetch(uri, {
             method: method,
@@ -29,8 +29,8 @@ export const Adress = () => {
 
         })
 
-        const ok = await res.json()
-        console.log('ok', ok)
+        await res.json()
+        // console.log('ok', ok)
         navigate("/adress")
     }
     const [entities, setEntities] = useState([]);
@@ -75,7 +75,7 @@ export const Adress = () => {
             if (id !== 'news') {
                 const res = await fetch(`${API_URL}/api/adress/${id}`);
                 data = await res.json();
-                console.log('id', data)
+                // console.log('id', data)
             }
 
             setFormData({
@@ -131,7 +131,7 @@ export const Adress = () => {
                 {!id && (
                     <div>
                         {/* Aquí muestras la lista de clientes */}
-                        <table>
+                        <table className='table'>
                             <thead>
                                 <tr>
                                     <th>Entidad</th>
@@ -142,9 +142,9 @@ export const Adress = () => {
                             <tbody>
                                 {adress.map((adress) => (
                                     <tr key={adress.id_adress}>
-                                        <td>{adress.entity_id_entity}</td>
-                                        <td>{adress.adress_dr1} {adress.country}</td>
-                                        <td>
+                                        <td data-label="Entidad">{adress.entity_id_entity}</td>
+                                        <td data-label="Dirección">{adress.adress_dr1} {adress.country}</td>
+                                        <td data-label="Acciones">
                                             <button className="submit-btn" onClick={() => {
                                                 navigate(`/adress/${adress.id_adress}`)
                                             }}>Editar</button>
