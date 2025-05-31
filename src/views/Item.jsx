@@ -111,17 +111,40 @@ export const Item = () => {
             }
         })();
     });
+
+    const [errors, setErrors] = useState({ firstName: '' });
+    const validate = {
+        upc: { max: 45 },
+        comercialName: { max: 45 },
+        description: { max: 45 },
+        cost: { max: 45 },
+        rate: { max: 45 },
+    };
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = formData[field] || '';
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
+
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Agregar Nuevo Artículo</h1>
-                    <Link to="/item/news" >Crear Artículo</Link>
-                    <Link to="/item">Lista</Link>
-                </div>
-                {!id && (
+                {!id && (<>
+                     <div className="record-title">
+                        <h1>Listado de Artículos</h1>
+                        <button className="submit-btn" onClick={() => navigate('/item/news')}>Crear Artículo</button>
+                    </div>
                     <div>
                         <table className='table'>
                             <thead>
@@ -148,42 +171,52 @@ export const Item = () => {
                             </tbody>
                         </table>
                     </div>
+                </>
                 )}
-                {(isCreating || isEditing) && (
-                    <form onSubmit={onSubmit} className="formulario">
-                    <FormInput label="Código UPC" id="upc" value={formData.upc} onChange={(e) => setFormData({ ...formData, upc: e.target.value })} required />
-
-                    <FormInput label="Nombre Comercial" id="comercial-name" value={formData.comercialName} onChange={(e) => setFormData({ ...formData, comercialName: e.target.value })} required />
-
-                    <FormInput label="Descripción" id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required />
-
-                    <FormSelect
-                        label="Ficha Técnica"
-                        id="technical-data"
-                        name="technical-data"
-                        value={formData.technicalDataId}
-                        onChange={(e) => setFormData({ ...formData, technicalDataId: e.target.value })}
-                        options={technicalDatas.map((technicalData) => ({
-                            value: technicalData.id_technical_data,
-                            label: technicalData.name
-                        }))}
-                        required
-                    />
-
-                    <FormInput label="Costo de Materia Prima" type='number' id="cost" value={formData.cost} onChange={(e) => setFormData({ ...formData, cost: e.target.value })} required />
-
-                    <FormInput label="Tarifa para Venta" type='number' id="rate" value={formData.rate} onChange={(e) => setFormData({ ...formData, rate: e.target.value })} required />
-
-                    <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
-
-                    <div className="form-actions">
-                        <button type="submit" className="submit-btn">Agregar</button>
-                        <button type="submit" className="cancel-btn">Cancelar</button>
+                {(isCreating || isEditing) && (<>
+                    <div className="record-title">
+                        {isEditing && <>
+                            <h1>Editar Artículo</h1>
+                            <button className="submit-btn" onClick={() => navigate('/item/news')}>Crear Artículo</button></>
+                        }
+                        {isCreating && <h1>Agregar Nueva Artículo</h1>}
+                        <button className="submit-btn" onClick={() => navigate('/item')}>Lista</button>
                     </div>
-                </form>
+                    <form onSubmit={onSubmit} className="formulario">
+                        <FormInput label="Código UPC" id="upc" value={formData.upc} onChange={(e) => setFormData({ ...formData, upc: e.target.value })} required errorMessage={errors.upc} />
+
+                        <FormInput label="Nombre Comercial" id="comercial-name" value={formData.comercialName} onChange={(e) => setFormData({ ...formData, comercialName: e.target.value })} required errorMessage={errors.comercialName} />
+
+                        <FormInput label="Descripción" id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required errorMessage={errors.description} />
+
+                        <FormSelect
+                            label="Ficha Técnica"
+                            id="technical-data"
+                            name="technical-data"
+                            value={formData.technicalDataId}
+                            onChange={(e) => setFormData({ ...formData, technicalDataId: e.target.value })}
+                            options={technicalDatas.map((technicalData) => ({
+                                value: technicalData.id_technical_data,
+                                label: technicalData.name
+                            }))}
+                            required
+                        />
+
+                        <FormInput label="Costo de Materia Prima" type='number' id="cost" value={formData.cost} onChange={(e) => setFormData({ ...formData, cost: e.target.value })} required errorMessage={errors.cost} />
+
+                        <FormInput label="Tarifa para Venta" type='number' id="rate" value={formData.rate} onChange={(e) => setFormData({ ...formData, rate: e.target.value })} required errorMessage={errors.rate} />
+
+                        <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
+
+                        <div className="form-actions">
+                            <button type="submit" className="submit-btn">Agregar</button>
+                            <button type="submit" className="cancel-btn">Cancelar</button>
+                        </div>
+                    </form>
+                </>
                 )}
             </main>
         </>
-        
+
     )
 }

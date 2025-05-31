@@ -51,7 +51,7 @@ export const Customer = () => {
         economyActivityId: '',
         paymentId: ''
     });
-    
+
     useEffect(() => {
         const fetchActivities = async () => {
             try {
@@ -123,7 +123,7 @@ export const Customer = () => {
                 economyActivityId: '',
                 paymentId: ''
             });
-            
+
         }
 
         fetchPaymentMethods();
@@ -137,17 +137,40 @@ export const Customer = () => {
             }
         })();
     });
+    const [errors, setErrors] = useState({ firstName: '' });
+    const validate = {
+        firstName: { max: 45 },
+        lastName: { max: 45 },
+        companyName: { max: 45 },
+        email: { max: 45 },
+        numberIdentification: { max: 45 },
+        phone: { max: 45 },
+        verificationDigit: { max: 1 },
+    };
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = formData[field] || '';
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Agregar Nuevo Cliente</h1>
-                    <Link to="/customer/news" >Crear Cliente</Link>
-                    <Link to="/customer">Lista</Link>
-                </div>
-                {!id && (
+                {!id && (<>
+                    <div className="record-title">
+                        <h1>Listado de Clientes</h1>
+                        <button className="submit-btn" onClick={() => navigate('/customer/news')}>Crear Cliente</button>
+                    </div>
                     <div>
                         {/* Aquí muestras la lista de clientes */}
                         <table className='table'>
@@ -175,65 +198,77 @@ export const Customer = () => {
                             </tbody>
                         </table>
                     </div>
+                </>
                 )}
                 {(isCreating || isEditing) && (
-                    <form onSubmit={onSubmit} className="formulario">
-                        <FormInput label="Nombres" id="nombres" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required />
-                        <FormInput label="Apellidos" id="apellidos" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required />
-                        <FormSelect
-                            label="Tipo de Pago"
-                            id="type-payment"
-                            name="type-payment"
-                            value={formData.paymentId}
-                            onChange={(e) => setFormData({ ...formData, paymentId: e.target.value })}
-                            options={payments.map((payment) => ({
-                                value: payment.id_payment,
-                                label: payment.payment_method
-                            }))}
-                            
-                        />
-                        <FormInput label="Razón Social" id="reason" name="reason" value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} />
-
-                        <FormInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-
-                        <FormInput label="Teléfono" type="tel" id="telefono" name="telefono" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-
-                        <FormSelect
-                            label="Tipo de Identificación"
-                            id="tipo-id"
-                            name="tipo-id"
-                            value={formData.typeIdentification}
-                            onChange={(e) => setFormData({ ...formData, typeIdentification: e.target.value })}
-                            options={[
-                                { value: "Cédula de Ciudadanía", label: "Cédula de Ciudadanía" },
-                                { value: "Cédula de Extranjería", label: "Cédula de Extranjería" },
-                                { value: "NIT", label: "NIT" },
-                            ]}
-                            required
-                        />
-
-                        <FormInput label="Número de Identificación" id="numero-id" name="numero-id" value={formData.numberIdentification} onChange={(e) => setFormData({ ...formData, numberIdentification: e.target.value })} required />
-
-                        <FormInput label="Digito de Verificación" id="verif" name="verif" value={formData.verificationDigit} onChange={(e) => setFormData({ ...formData, verificationDigit: e.target.value })} />
-
-                        <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
-                        <FormSelect
-                            label="Actividad Economica"
-                            id="economy-activity"
-                            name="economy-activity"
-                            value={formData.economyActivityId}
-                            onChange={(e) => setFormData({ ...formData, economyActivityId: e.target.value })}
-                            options={activities.map((activity) => ({
-                                value: activity.id_economy,
-                                label: activity.activity_name
-                            }))}
-                            
-                        />
-                        <div className="form-actions">
-                            <button type="submit" className="submit-btn">Guardar</button>
-                            <button type="button" className="cancel-btn" onClick={() => navigate("/customer")}>Cancelar</button> 
+                    <>
+                        <div className="record-title">
+                            {isEditing && <>
+                                <h1>Editar Cliente</h1>
+                                <button className="submit-btn" onClick={() => navigate('/customer/news')}>Crear Cliente</button></>
+                            }
+                            {isCreating && <h1>Agregar Nueva Cliente</h1>}
+                            <button className="submit-btn" onClick={() => navigate('/customer')}>Lista</button>
                         </div>
-                    </form>
+                        <form onSubmit={onSubmit} className="formulario">
+                            <FormInput label="Nombres" id="nombres" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required errorMessage={errors.firstName} />
+                            <FormInput label="Apellidos" id="apellidos" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required errorMessage={errors.lastName} />
+                            <FormSelect
+                                label="Tipo de Pago"
+                                id="type-payment"
+                                name="type-payment"
+                                value={formData.paymentId}
+                                onChange={(e) => setFormData({ ...formData, paymentId: e.target.value })}
+                                options={payments.map((payment) => ({
+                                    value: payment.id_payment,
+                                    label: payment.payment_method
+                                }))}
+
+                            />
+                            <FormInput label="Razón Social" id="reason" name="reason" value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} errorMessage={errors.companyName} />
+
+                            <FormInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required errorMessage={errors.email} />
+
+                            <FormInput label="Teléfono" type="tel" id="telefono" name="telefono" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} errorMessage={errors.phone} />
+
+                            <FormSelect
+                                label="Tipo de Identificación"
+                                id="tipo-id"
+                                name="tipo-id"
+                                value={formData.typeIdentification}
+                                onChange={(e) => setFormData({ ...formData, typeIdentification: e.target.value })}
+                                options={[
+                                    { value: "Cédula de Ciudadanía", label: "Cédula de Ciudadanía" },
+                                    { value: "Cédula de Extranjería", label: "Cédula de Extranjería" },
+                                    { value: "NIT", label: "NIT" },
+                                ]}
+                                required
+                            />
+
+                            <FormInput label="Número de Identificación" id="numero-id" name="numero-id" value={formData.numberIdentification} onChange={(e) => setFormData({ ...formData, numberIdentification: e.target.value })} required errorMessage={errors.numberIdentification} />
+
+                            <FormInput label="Digito de Verificación" id="verif" name="verif" value={formData.verificationDigit} onChange={(e) => setFormData({ ...formData, verificationDigit: e.target.value })} errorMessage={errors.verificationDigit} />
+
+                            <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
+                            <FormSelect
+                                label="Actividad Economica"
+                                id="economy-activity"
+                                name="economy-activity"
+                                value={formData.economyActivityId}
+                                onChange={(e) => setFormData({ ...formData, economyActivityId: e.target.value })}
+                                options={activities.map((activity) => ({
+                                    value: activity.id_economy,
+                                    label: activity.activity_name
+                                }))}
+
+                            />
+                            <div className="form-actions">
+                                <button type="submit" className="submit-btn">Guardar</button>
+                                <button type="button" className="cancel-btn" onClick={() => navigate("/customer")}>Cancelar</button>
+                            </div>
+                        </form>
+                    </>
+
                 )}
             </main>
         </>

@@ -87,18 +87,39 @@ export const Card = () => {
         })();
     });
 
+    const [errors, setErrors] = useState({ firstName: '' });
+    const validate = {
+        name: { max: 45 },
+        description: { max: 45 },
+        composition: { max: 45 },
+        madeYarn: { max: 45 },
+        typeFabric: { max: 45 },
+    };
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = formData[field] || '';
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
+
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Ficha Técnica</h1>
-                    <Link to="/card/news">Crear Ficha Técnica</Link>
-                    <Link to="/card">Lista</Link>
-                </div>
-
-                {!id && (
+                {!id && (<>
+                    <div className="record-title">
+                        <h1>Listado de Fichas Técnicas</h1>
+                        <button className="submit-btn" onClick={() => navigate('/card/news')}>Crear Fichas Técnicas</button>
+                    </div>
                     <table className="table">
                         <thead>
                             <tr>
@@ -123,15 +144,24 @@ export const Card = () => {
                             ))}
                         </tbody>
                     </table>
+                </>
                 )}
 
-                {(isCreating || isEditing) && (
+                {(isCreating || isEditing) && (<>
+                    <div className="record-title">
+                            {isEditing && <>
+                                <h1>Editar Artículo</h1>
+                                <button className="submit-btn" onClick={() => navigate('/card/news')}>Crear Artículo</button></>
+                            }
+                            {isCreating && <h1>Agregar Nueva Artículo</h1>}
+                            <button className="submit-btn" onClick={() => navigate('/card')}>Lista</button>
+                        </div>
                     <form onSubmit={onSubmit} className="formulario">
-                        <FormInput label="Nombre" id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-                        <FormInput label="Descripción" id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-                        <FormInput label="Composición" id="composition" value={formData.composition} onChange={(e) => setFormData({ ...formData, composition: e.target.value })} />
-                        <FormInput label="Hecho con hilo" id="made_yarn" value={formData.madeYarn} onChange={(e) => setFormData({ ...formData, madeYarn: e.target.value })} />
-                        <FormInput label="Tipo de Tela" id="type_fabric" value={formData.typeFabric} onChange={(e) => setFormData({ ...formData, typeFabric: e.target.value })} />
+                        <FormInput label="Nombre" id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required errorMessage={errors.name}/>
+                        <FormInput label="Descripción" id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} errorMessage={errors.description}/>
+                        <FormInput label="Composición" id="composition" value={formData.composition} onChange={(e) => setFormData({ ...formData, composition: e.target.value })} errorMessage={errors.composition}/>
+                        <FormInput label="Hecho con hilo" id="made_yarn" value={formData.madeYarn} onChange={(e) => setFormData({ ...formData, madeYarn: e.target.value })} errorMessage={errors.madeYarn}/>
+                        <FormInput label="Tipo de Tela" id="type_fabric" value={formData.typeFabric} onChange={(e) => setFormData({ ...formData, typeFabric: e.target.value })} errorMessage={errors.typeFabric}/>
                         <FormInput label="Tela Estampada" type="checkbox" id="printed_fabric" name="printed_fabric" checked={formData.printedFabric === 1} onChange={(e) => setFormData({ ...formData, printedFabric: e.target.checked ? 1 : 0 })} />
                         <FormInput label="Fecha" type="date" id="date" value={formData.date} disabled />
 
@@ -140,6 +170,7 @@ export const Card = () => {
                             <button type="button" className="cancel-btn" onClick={() => navigate("/card")}>Cancelar</button>
                         </div>
                     </form>
+                </>
                 )}
             </main>
         </>

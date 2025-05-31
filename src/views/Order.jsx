@@ -1,7 +1,7 @@
 import { Nav } from '../components/Nav.jsx'
 import { Header } from '../components/Header.jsx'
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, memo } from "react";
 import { FormSelect } from '../components/FormSelect.jsx'
 import { FormInput } from '../components/FormInput.jsx'
 import { API_URL } from '../../config/config.jsx'
@@ -16,6 +16,10 @@ export const Order = () => {
     async function onSubmit(e) {
         e.preventDefault()
         // console.log('ids', [id, id === "news", isCreating])
+        if (formData.items.length === 0) {
+            alert("Debe agregar al menos un artículo para guardar la orden.");
+            return;
+        }
         const uri = isCreating ? `${API_URL}/api/order` : `${API_URL}/api/order/${id}`
         const method = isCreating ? "POST" : "PUT"
         const totalCalculated = formData.items.reduce((acc, item) => {
@@ -100,7 +104,18 @@ export const Order = () => {
         total: 0,
         items: [],
     });
+    const [errors, setErrors] = useState();
+    const itemFieldValidation = {
+        quantity: { max: 45 },
+        description: { max: 45 },
+        unit_price: { max: 45 },
+        discount_percentage: { max: 45 },
+        tax_percentage: { max: 45 },
+    };
 
+    const validate = {
+        memo: { max: 45 },
+    }
     useEffect(() => {
         const fetchItems = async () => {
             try {
@@ -254,7 +269,21 @@ export const Order = () => {
 
     const saveEditedItem = (index) => {
         const item = formData.items[index];
+        const fieldErrors = {};
 
+        for (const field in itemFieldValidation) {
+            const rule = itemFieldValidation[field];
+            const value = item[field] || '';
+
+            if (value.length > rule.max) {
+                fieldErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+        if (Object.keys(fieldErrors).length > 0) {
+            alert('Corrige los errores antes de guardar:\n' +
+                Object.entries(fieldErrors).map(([k, v]) => `• ${k}: ${v}`).join('\n'));
+            return; // no guardar si hay errores
+        }
         const unitPrice = parseFloat(item.unit_price || 0);
         const quantity = parseFloat(item.quantity || 0);
         const tax = parseFloat(item.tax_percentage || 0);
@@ -297,17 +326,45 @@ export const Order = () => {
         })();
     });
 
+
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in itemFieldValidation) {
+            const rule = itemFieldValidation[field];
+            const value = (newItem[field] || '').toString();
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [newItem]);
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = (formData[field] || '').toString();
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Agregar Nueva Orden</h1>
-                    <Link to="/orders/news" >Crear Orden</Link>
-                    <Link to="/orders">Lista</Link>
-                </div>
-                {!id && (
+                {!id && (<>
+                    <div className="record-title">
+                        <h1>Listado de Ordenes</h1>
+                        <button className="submit-btn" onClick={() => navigate('/orders/news')}>Crear Orden</button>
+                    </div>
                     <div>
                         <table className="table">
                             <thead>
@@ -344,248 +401,267 @@ export const Order = () => {
                             </tbody>
                         </table>
                     </div>
+                </>
+
                 )}
                 {(isCreating || isEditing) && (
-                    <form onSubmit={onSubmit} >
-                        <div className="formulario">
-                            <FormSelect
-                                label="Cliente"
-                                id="customer"
-                                name="customer"
-                                value={formData.entityId}
-                                onChange={(e) => setFormData({ ...formData, entityId: e.target.value })}
-                                options={customers.map((entity) => ({
-                                    value: entity.id_entity,
-                                    label: entity.company_name
-                                }))}
-                                required
-                            />
-                            <FormSelect
-                                label="Vendedor"
-                                id="salesrep"
-                                name="salesrep"
-                                value={formData.salesRep}
-                                onChange={(e) => { setFormData({ ...formData, salesRep: e.target.value }) }}
-                                options={employees.map((employee) => ({
-                                    value: employee.id_entity,
-                                    label: employee.first_name + ' ' + employee.last_name
-                                }))}
-                                required
-                            />
-                            <FormInput label="Fecha" type="date" id="date" value={formData.date} disabled />
-                            <div className="form-group">
-                                <label>Número de Transacción</label>
-                                <p>{id == "news" ? "A generar" : 'OR-' + id}</p>
-                            </div>
-                            <FormInput label="Nota" id="memo" value={formData.memo} onChange={(e) => setFormData({ ...formData, memo: e.target.value })} />
+                    <>
+                        <div className="record-title">
+                            {isEditing && <>
+                                <h1>Editar Orden</h1>
+                                <button className="submit-btn" onClick={() => navigate('/orders/news')}>Crear Orden</button></>
+                            }
+                            {isCreating && <h1>Agregar Nueva Orden</h1>}
+                            <button className="submit-btn" onClick={() => navigate('/orders')}>Lista</button>
                         </div>
-                        <div className="formulario-items">
-                            <table id="itemsTable">
-                                <thead>
-                                    <tr>
-                                        <th className="hidden">ID </th>
-                                        <th>Artículo *</th>
-                                        <th>Cantidad *</th>
-                                        <th>Descripción *</th>
-                                        <th>Tarifa *</th>
-                                        <th>Impuesto% *</th>
-                                        <th>Descuento% *</th>
-                                        <th>Importe total</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {formData.items.map((item, index) => (
-                                        <tr
-                                            key={item.id_order_item || `new-${index}`}
-                                            onClick={() => {
-                                                if (editingIndex !== index) setEditingIndex(index);
-                                            }}
-                                        >
-                                            <td data-label="ID" className="hidden"
+                        <form onSubmit={onSubmit} >
+                            <div className="formulario">
+                                <FormSelect
+                                    label="Cliente"
+                                    id="customer"
+                                    name="customer"
+                                    value={formData.entityId}
+                                    onChange={(e) => setFormData({ ...formData, entityId: e.target.value })}
+                                    options={customers.map((entity) => ({
+                                        value: entity.id_entity,
+                                        label: entity.company_name
+                                    }))}
+                                    required
+                                />
+                                <FormSelect
+                                    label="Vendedor"
+                                    id="salesrep"
+                                    name="salesrep"
+                                    value={formData.salesRep}
+                                    onChange={(e) => { setFormData({ ...formData, salesRep: e.target.value }) }}
+                                    options={employees.map((employee) => ({
+                                        value: employee.id_entity,
+                                        label: employee.first_name + ' ' + employee.last_name
+                                    }))}
+                                    required
+                                />
+                                <FormInput label="Fecha" type="date" id="date" value={formData.date} disabled />
+                                <div className="form-group">
+                                    <label>Número de Transacción</label>
+                                    <p>{id == "news" ? "A generar" : 'OR-' + id}</p>
+                                </div>
+                                <FormInput label="Nota" id="memo" value={formData.memo} onChange={(e) => setFormData({ ...formData, memo: e.target.value })} errorMessage={errors.memo} />
+                            </div>
+                            <div className="formulario-items">
+                                <table id="itemsTable">
+                                    <thead>
+                                        <tr>
+                                            <th className="hidden">ID </th>
+                                            <th>Artículo *</th>
+                                            <th>Cantidad *</th>
+                                            <th>Descripción *</th>
+                                            <th>Tarifa *</th>
+                                            <th>Impuesto% *</th>
+                                            <th>Descuento% *</th>
+                                            <th>Importe total</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {formData.items.map((item, index) => (
+                                            <tr
+                                                key={item.id_order_item || `new-${index}`}
+                                                onClick={() => {
+                                                    if (editingIndex !== index) setEditingIndex(index);
+                                                }}
                                             >
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        type="number"
-                                                        value={item.id_order_item}
-                                                        readOnly
-                                                    />
-                                                ) : (
-                                                    item.id_order_item
-                                                )}
-                                            </td>
-                                            <td data-label="Artículo * ">
-                                                {editingIndex === index ? (
-                                                    <FormSelect
-                                                        value={item.item_id_item}
-                                                        onChange={(e) => updateItem(index, 'item_id_item', e.target.value)}
-                                                        options={items.map((i) => ({
-                                                            value: i.id_item,
-                                                            label: i.comercial_name
-                                                        }))}
-                                                    />
-                                                ) : (
-                                                    items.find(i => i.id_item === item.item_id_item)?.comercial_name || ''
-                                                )}
-                                            </td>
-                                            <td data-label="Cantidad * ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        type="number"
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.quantity
-                                                )}
-                                            </td>
-                                            <td data-label="Descripción * ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        value={item.description}
-                                                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.description
-                                                )}
-                                            </td>
-                                            <td data-label="Tarifa * ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        value={item.unit_price}
-                                                        type="number"
-                                                        onChange={(e) => updateItem(index, 'unit_price', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.unit_price
-                                                )}
-                                            </td>
-                                            <td data-label="Impuesto% * ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        value={item.tax_percentage}
-                                                        type="number"
-                                                        onChange={(e) => updateItem(index, 'tax_percentage', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.tax_percentage
-                                                )}
-                                            </td>
-                                            <td data-label="Descuento% * ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        value={item.discount_percentage}
-                                                        type="number"
-                                                        onChange={(e) => updateItem(index, 'discount_percentage', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.discount_percentage
-                                                )}
-                                            </td>
-                                            <td data-label="Importe Total ">
-                                                {editingIndex === index ? (
-                                                    <FormInput
-                                                        value={item.total_amount}
-                                                        type="number"
-                                                        onChange={(e) => updateItem(index, 'total_amount', e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.total_amount
-                                                )}
-                                            </td>
-                                            <td>
-                                                {editingIndex === index ? (
-                                                    <button
+                                                <td data-label="ID" className="hidden"
+                                                >
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            type="number"
+                                                            value={item.id_order_item}
+                                                            readOnly
+                                                        />
+                                                    ) : (
+                                                        item.id_order_item
+                                                    )}
+                                                </td>
+                                                <td data-label="Artículo * ">
+                                                    {editingIndex === index ? (
+                                                        <FormSelect
+                                                            value={item.item_id_item}
+                                                            onChange={(e) => updateItem(index, 'item_id_item', e.target.value)}
+                                                            options={items.map((i) => ({
+                                                                value: i.id_item,
+                                                                label: i.comercial_name
+                                                            }))}
+                                                        />
+                                                    ) : (
+                                                        items.find(i => i.id_item === item.item_id_item)?.comercial_name || ''
+                                                    )}
+                                                </td>
+                                                <td data-label="Cantidad * ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            type="number"
+                                                            value={item.quantity}
+                                                            onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                                                            errorMessage={errors.quantity}
+                                                        />
+                                                    ) : (
+                                                        item.quantity
+                                                    )}
+                                                </td>
+                                                <td data-label="Descripción * ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            value={item.description}
+                                                            onChange={(e) => updateItem(index, 'description', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        item.description
+                                                    )}
+                                                </td>
+                                                <td data-label="Tarifa * ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            value={item.unit_price}
+                                                            type="number"
+                                                            onChange={(e) => updateItem(index, 'unit_price', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        item.unit_price
+                                                    )}
+                                                </td>
+                                                <td data-label="Impuesto% * ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            value={item.tax_percentage}
+                                                            type="number"
+                                                            onChange={(e) => updateItem(index, 'tax_percentage', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        item.tax_percentage
+                                                    )}
+                                                </td>
+                                                <td data-label="Descuento% * ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            value={item.discount_percentage}
+                                                            type="number"
+                                                            onChange={(e) => updateItem(index, 'discount_percentage', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        item.discount_percentage
+                                                    )}
+                                                </td>
+                                                <td data-label="Importe Total ">
+                                                    {editingIndex === index ? (
+                                                        <FormInput
+                                                            value={item.total_amount}
+                                                            type="number"
+                                                            onChange={(e) => updateItem(index, 'total_amount', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        item.total_amount
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {editingIndex === index ? (
+                                                        <button
+                                                            type="button"
+                                                            className="submit-btn"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // ← evita que el click también active edición de nuevo
+                                                                saveEditedItem(index);
+                                                            }}
+                                                        >
+                                                            Guardar
+                                                        </button>
+                                                    ) : <button
                                                         type="button"
                                                         className="submit-btn"
                                                         onClick={(e) => {
-                                                            e.stopPropagation(); // ← evita que el click también active edición de nuevo
-                                                            saveEditedItem(index);
+                                                            e.stopPropagation(); // evita activar la edición
+                                                            removeItem(index);
                                                         }}
                                                     >
-                                                        Guardar
-                                                    </button>
-                                                ) : <button
-                                                    type="button"
-                                                    className="submit-btn"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // evita activar la edición
-                                                        removeItem(index);
-                                                    }}
-                                                >
-                                                    Eliminar
-                                                </button>}
+                                                        Eliminar
+                                                    </button>}
+                                                </td>
+                                            </tr>
+                                        ))}
+
+                                        {/* Línea vacía adicional */}
+                                        <tr>
+                                            <td data-label="ID" className="hidden"><FormInput
+                                                type="number"
+
+                                                readOnly
+                                            /></td>
+                                            <td data-label="Artículo *">
+                                                <FormSelect
+                                                    value={newItem.item_id_item}
+                                                    onChange={(e) => handleNewItemChange('item_id_item', e.target.value)}
+                                                    options={items.map((i) => ({ value: i.id_item, label: i.comercial_name }))}
+                                                />
                                             </td>
+                                            <td data-label="Cantidad *">
+                                                <FormInput
+                                                    type="number"
+                                                    value={newItem.quantity}
+                                                    onChange={(e) => handleNewItemChange('quantity', e.target.value)}
+                                                    errorMessage={errors.quantity}
+
+                                                />
+                                            </td>
+                                            <td data-label="Descripción *">
+                                                <FormInput
+                                                    value={newItem.description}
+                                                    onChange={(e) => handleNewItemChange('description', e.target.value)}
+                                                    errorMessage={errors.description}
+                                                />
+                                            </td>
+                                            <td data-label="Tarifa *">
+                                                <FormInput
+                                                    type="number"
+                                                    value={newItem.unit_price}
+                                                    onChange={(e) => handleNewItemChange('unit_price', e.target.value)}
+                                                    errorMessage={errors.unit_price}
+                                                />
+                                            </td>
+                                            <td data-label="Impuesto% *">
+                                                <FormInput
+                                                    type="number"
+                                                    value={newItem.tax_percentage}
+                                                    onChange={(e) => handleNewItemChange('tax_percentage', e.target.value)}
+                                                    errorMessage={errors.tax_percentage}
+                                                />
+                                            </td>
+                                            <td data-label="Descuento * ">
+                                                <FormInput
+                                                    type="number"
+                                                    value={newItem.discount_percentage}
+                                                    onChange={(e) => handleNewItemChange('discount_percentage', e.target.value)}
+                                                    errorMessage={errors.discount_percentage}
+                                                />
+                                            </td>
+
+                                            <td></td>
+                                            <td></td>
+
                                         </tr>
-                                    ))}
-
-                                    {/* Línea vacía adicional */}
-                                    <tr>
-                                        <td data-label="ID" className="hidden"><FormInput
-                                            type="number"
-
-                                            readOnly
-                                        /></td>
-                                        <td data-label="Artículo *">
-                                            <FormSelect
-                                                value={newItem.item_id_item}
-                                                onChange={(e) => handleNewItemChange('item_id_item', e.target.value)}
-                                                options={items.map((i) => ({ value: i.id_item, label: i.comercial_name }))}
-                                            />
-                                        </td>
-                                        <td data-label="Cantidad *">
-                                            <FormInput
-                                                type="number"
-                                                value={newItem.quantity}
-                                                onChange={(e) => handleNewItemChange('quantity', e.target.value)}
-                                            />
-                                        </td>
-                                        <td data-label="Descripción *">
-                                            <FormInput
-                                                value={newItem.description}
-                                                onChange={(e) => handleNewItemChange('description', e.target.value)}
-                                            />
-                                        </td>
-                                        <td data-label="Tarifa *">
-                                            <FormInput
-                                                type="number"
-                                                value={newItem.unit_price}
-                                                onChange={(e) => handleNewItemChange('unit_price', e.target.value)}
-                                            />
-                                        </td>
-                                        <td data-label="Impuesto% *">
-                                            <FormInput
-                                                type="number"
-                                                value={newItem.tax_percentage}
-                                                onChange={(e) => handleNewItemChange('tax_percentage', e.target.value)}
-                                            />
-                                        </td>
-                                        <td data-label="Descuento * ">
-                                            <FormInput
-                                                type="number"
-                                                value={newItem.discount_percentage}
-                                                onChange={(e) => handleNewItemChange('discount_percentage', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td></td>
-                                        <td></td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <button className="submit-btn" onClick={addNewItem} type="button">
-                                Agregar Artículo
-                            </button>
-                            <button className="cancel-btn" onClick={cancelNewItem} type="button">
-                                Cancelar Artículo
-                            </button>
-                        </div>
-                        <div className="form-actions">
-                            <button type="submit" className="submit-btn">Guardar</button>
-                            <button type="button" className="cancel-btn" onClick={() => navigate("/orders")}>Cancelar</button>
-                        </div>
-                    </form>
+                                    </tbody>
+                                </table>
+                                <button className="submit-btn" onClick={addNewItem} type="button">
+                                    Agregar Artículo
+                                </button>
+                                <button className="cancel-btn" onClick={cancelNewItem} type="button">
+                                    Cancelar Artículo
+                                </button>
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="submit-btn">Guardar</button>
+                                <button type="button" className="cancel-btn" onClick={() => navigate("/orders")}>Cancelar</button>
+                            </div>
+                        </form>
+                    </>
                 )}
             </main>
         </>

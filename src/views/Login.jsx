@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/AuthContext.jsx";
 export const Login = () => {
     const navigate = useNavigate();
     const { token, setCookies } = useContext(AuthContext);
+    const [errorMessage, setErrorMessage] = useState('');
     async function onSubmit(e) {
         e.preventDefault()
         const uri = `${API_URL}/api/login`
@@ -23,11 +24,11 @@ export const Login = () => {
         const { message, token } = await res.json();
 
         if (message === "Bienvenido") {
-            setCookies("token", token, { path: "/", maxAge:  1 * 24 * 60 * 60 })
+            setCookies("token", token, { path: "/", maxAge: 1 * 24 * 60 * 60 })
             navigate("/")
-
+        } else {
+            setErrorMessage(message); // 👈 Aquí se guarda el mensaje de error
         }
-        alert(message);
     }
     const [formData, setFormData] = useState({
         email: '',
@@ -36,24 +37,25 @@ export const Login = () => {
     });
     useEffect(() => {
         (() => {
-          if (token) {
-            navigate("/");
-          }
+            if (token) {
+                navigate("/");
+            }
         })();
-      });
+    });
     return (
         <>
             <Header />
 
-            <h2>Inicio de sesion:</h2>
             <main className="cuerpo">
                 <form onSubmit={onSubmit}>
+                    <h2>Inicio de sesion</h2 >
                     <div className="form-group">
-                        <FormInput label="Correo Electronico" id="email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                        <FormInput style={{ marginBottom: '10px' }} label="Correo Electronico" id="email" type='email' onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
 
                         <FormInput label="Contraseña" type='password' id="password" onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                        {errorMessage && <p style={{ color: 'red', fontSize: '0.9em' }} className="error-message">{errorMessage}</p>}
 
-                        <button className="submit-btn" type="submit">Acceder</button>
+                        <button style={{ marginTop: '10px' }} className="submit-btn" type="submit">Acceder</button>
                     </div>
                 </form>
                 {/* <a className="a" href="#">Olvidaste tu Contraseña?</a>

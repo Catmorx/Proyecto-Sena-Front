@@ -38,7 +38,6 @@ export const Adress = () => {
     const [adress, setAdress] = useState([]);
     const [formData, setFormData] = useState({
         adressDr1: '',
-        adressDr2: '',
         country: '',
         town: '',
         zip: '',
@@ -80,7 +79,6 @@ export const Adress = () => {
 
             setFormData({
                 adressDr1: data?.[0]?.adress_dr1,
-                adressDr2: data?.[0]?.adress_dr2,
                 country: data?.[0]?.country,
                 town: data?.[0]?.town,
                 zip: data?.[0]?.zip,
@@ -99,7 +97,6 @@ export const Adress = () => {
         if (isCreating) {
             setFormData({
                 adressDr1: '',
-                adressDr2: '',
                 country: '',
                 town: '',
                 zip: '',
@@ -118,17 +115,38 @@ export const Adress = () => {
             }
         })();
     });
+    const [errors, setErrors] = useState({ firstName: '' });
+    const validate = {
+        adressDr1: { max: 45 },
+        country: { max: 45 },
+        town: { max: 45 },
+        memoAdress: { max: 45 },
+        zip: { max: 6 },
+    };
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = formData[field] || '';
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Agregar Nueva Dirección</h1>
-                    <Link to="/adress/news" >Crear Dirección</Link>
-                    <Link to="/adress">Lista</Link>
-                </div>
-                {!id && (
+                {!id && (<>
+                    <div className="record-title">
+                        <h1>Listado de Direcciones</h1>
+                        <button className="submit-btn" onClick={() => navigate('/adress/news')}>Crear Dirección</button>
+                    </div>
                     <div>
                         {/* Aquí muestras la lista de clientes */}
                         <table className='table'>
@@ -154,15 +172,24 @@ export const Adress = () => {
                             </tbody>
                         </table>
                     </div>
+                </>
                 )}
-                {(isCreating || isEditing) && (
+                {(isCreating || isEditing) && (<>
+                    <div className="record-title">
+                            {isEditing && <>
+                                <h1>Editar Dirección</h1>
+                                <button className="submit-btn" onClick={() => navigate('/adress/news')}>Crear Dirección</button></>
+                            }
+                            {isCreating && <h1>Agregar Nueva Dirección</h1>}
+                            <button className="submit-btn" onClick={() => navigate('/adress')}>Lista</button>
+                        </div>
                     <form onSubmit={onSubmit} className="formulario">
-                        <FormInput label="Dirección" id="adress" value={formData.adressDr1} onChange={(e) => setFormData({ ...formData, adressDr1: e.target.value })} required />
-                        <FormInput label="Pais" id="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} required />
-                        <FormInput label="Cuidad" id="town" name="town" value={formData.town} onChange={(e) => setFormData({ ...formData, town: e.target.value })} />
+                        <FormInput label="Dirección" id="adress" value={formData.adressDr1} onChange={(e) => setFormData({ ...formData, adressDr1: e.target.value })} required errorMessage={errors.adressDr1}/>
+                        <FormInput label="Pais" id="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} required errorMessage={errors.country}/>
+                        <FormInput label="Cuidad" id="town" name="town" value={formData.town} onChange={(e) => setFormData({ ...formData, town: e.target.value })} errorMessage={errors.town}/>
 
-                        <FormInput label="Nota" id="memo" name="memo" value={formData.memoAdress} onChange={(e) => setFormData({ ...formData, memoAdress: e.target.value })} required />
-                        <FormInput label="Zip" id="zip" name="zip" value={formData.zip} onChange={(e) => setFormData({ ...formData, zip: e.target.value })} required />
+                        <FormInput label="Nota" id="memo" name="memo" value={formData.memoAdress} onChange={(e) => setFormData({ ...formData, memoAdress: e.target.value })} required errorMessage={errors.memoAdress}/>
+                        <FormInput label="Zip" id="zip" name="zip" value={formData.zip} onChange={(e) => setFormData({ ...formData, zip: e.target.value })} required errorMessage={errors.zip}/>
                         <FormSelect
                             label="Entidad"
                             id="entity"
@@ -171,7 +198,7 @@ export const Adress = () => {
                             onChange={(e) => setFormData({ ...formData, entityId: e.target.value })}
                             options={entities.map((entity) => ({
                                 value: entity.id_entity,
-                                label: entity.company_name,
+                                label: entity.company_name || `${entity.first_name} ${entity.last_name}`,
                             }))}
                             required
                         />
@@ -180,6 +207,7 @@ export const Adress = () => {
                             <button type="button" className="cancel-btn" onClick={() => navigate("/adress")}>Cancelar</button>
                         </div>
                     </form>
+                </>
                 )}
             </main>
         </>

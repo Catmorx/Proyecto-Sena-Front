@@ -72,7 +72,7 @@ export const LandingPage = () => {
                     <div className="center-data-container">
                         <div className="card">
                             <div>
-                                <p className="title">Total Ordenes</p>
+                                <p className="title">Ordenes</p>
                             </div>
                             <div className="icon">
                                 <span
@@ -87,7 +87,7 @@ export const LandingPage = () => {
                     <div className="center-data-container">
                         <div className="card-white">
                             <div>
-                                <p className="title">Total Empleados</p>
+                                <p className="title">Empleados</p>
                             </div>
                             <div className="icon">
                                 <span
@@ -100,7 +100,7 @@ export const LandingPage = () => {
                     <div className="center-data-container">
                         <div className="card-white">
                             <div>
-                                <p className="title">Total Clientes</p>
+                                <p className="title">Clientes</p>
                             </div>
                             <div className="icon">
                                 <span
@@ -113,7 +113,7 @@ export const LandingPage = () => {
                     <div className="center-data-container">
                         <div className="card-white">
                             <div>
-                                <p className="title">Total Fichas</p>
+                                <p className="title">Fichas</p>
                             </div>
                             <div className="icon">
                                 <span
@@ -128,7 +128,7 @@ export const LandingPage = () => {
                     <div className="center-data-container">
                         <div className="card-white">
                             <div>
-                                <p className="title">Total Artículos</p>
+                                <p className="title">Artículos</p>
                             </div>
                             <div className="icon">
                                 <span

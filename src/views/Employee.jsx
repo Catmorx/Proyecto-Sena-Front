@@ -136,102 +136,138 @@ export const Employee = () => {
             }
         })();
     });
+
+    const [errors, setErrors] = useState({ firstName: '' });
+    const validate = {
+        firstName: { max: 45 },
+        lastName: { max: 45 },
+        companyName: { max: 45 },
+        email: { max: 45 },
+        numberIdentification: { max: 45 },
+        phone: { max: 45 },
+        verificationDigit: { max: 1 },
+    };
+    useEffect(() => {
+        const newErrors = {};
+
+        for (const field in validate) {
+            const rule = validate[field];
+            const value = formData[field] || '';
+
+            if (value.length > rule.max) {
+                newErrors[field] = `Máximo ${rule.max} caracteres.`;
+            }
+        }
+
+        setErrors(newErrors);
+    }, [formData]);
     return (
         <>
             <Nav logout={logout} />
             <main>
                 <Header />
-                <div className="record-title">
-                    <h1>Agregar Nuevo Empleado</h1>
-                    <Link to="/employee/news" >Crear Empleado</Link>
-                    <Link to="/employee">Lista</Link>
-                </div>
                 {!id && (
-                    <div>
-                        <table className='table'>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>EPS</th>
-                                    <th>Email</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {employees.map((employee) => (
-                                    <tr key={employee.id_entity}>
-                                        <td data-label="Nombre">{employee.first_name} {employee.last_name}</td>
-                                        <td data-label="EPS">{employee.health_entity_id_health}</td>
-                                        <td data-label="Email">{employee.email}</td>
-                                        <td data-label="Acciones">
-                                            <button className="submit-btn" onClick={() => {
-                                                navigate(`/employee/${employee.id_entity}`)
-                                            }}>Editar</button>
-                                        </td>
+                    <>
+                        <div className="record-title">
+                            <h1>Listado de Empleados</h1>
+                            <button className="submit-btn" onClick={() => navigate('/employee/news')}>Crear Empleado</button>
+                        </div>
+                        <div>
+                            <table className='table'>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>EPS</th>
+                                        <th>Email</th>
+                                        <th>Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {employees.map((employee) => (
+                                        <tr key={employee.id_entity}>
+                                            <td data-label="Nombre">{employee.first_name} {employee.last_name}</td>
+                                            <td data-label="EPS">{employee.health_entity_id_health}</td>
+                                            <td data-label="Email">{employee.email}</td>
+                                            <td data-label="Acciones">
+                                                <button className="submit-btn" onClick={() => {
+                                                    navigate(`/employee/${employee.id_entity}`)
+                                                }}>Editar</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
                 {(isCreating || isEditing) && (
-                    <form onSubmit={onSubmit} className="formulario">
-                        <FormInput label="Nombres" id="nombres" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required />
-                        <FormInput label="Apellidos" id="apellidos" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required />
-
-                        <FormInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-
-                        <FormInput label="Teléfono" type="tel" id="telefono" name="telefono" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-
-                        <FormSelect
-                            label="Tipo de Identificación"
-                            id="tipo-id"
-                            name="tipo-id"
-                            value={formData.typeIdentification}
-                            onChange={(e) => setFormData({ ...formData, typeIdentification: e.target.value })}
-                            options={[
-                                { value: "Cédula de Ciudadanía", label: "Cédula de Ciudadanía" },
-                                { value: "Cédula de Extranjería", label: "Cédula de Extranjería" },
-                                { value: "NIT", label: "NIT" },
-                            ]}
-                            required
-                        />
-
-                        <FormInput label="Número de Identificación" id="numero-id" name="numero-id" value={formData.numberIdentification} onChange={(e) => setFormData({ ...formData, numberIdentification: e.target.value })} required />
-
-                        <FormInput label="Digito de Verificación" id="verif" name="verif" value={formData.verificationDigit} onChange={(e) => setFormData({ ...formData, verificationDigit: e.target.value })} />
-                        <FormSelect
-                            label="EPS"
-                            id="eps"
-                            name="eps"
-                            value={formData.healthId}
-                            onChange={(e) => setFormData({ ...formData, healthId: e.target.value })}
-                            options={healthEntities.map((activity) => ({
-                                value: activity.id_health,
-                                label: activity.health_name
-                            }))}
-                            required
-                        />
-                        <FormSelect
-                            label="Tipo de Sangre"
-                            id="blood_type"
-                            name="blood_type"
-                            value={formData.bloodId}
-                            onChange={(e) => setFormData({ ...formData, bloodId: e.target.value })}
-                            options={bloodTypes.map((activity) => ({
-                                value: activity.id_blood,
-                                label: activity.blood_name
-                            }))}
-                            required
-                        />
-
-                        <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
-
-                        <div className="form-actions">
-                            <button type="submit" className="submit-btn">Guardar</button>
-                            <button type="button" className="cancel-btn" onClick={() => navigate("/employee")}>Cancelar</button>
+                    <>
+                        <div className="record-title">
+                            {isEditing && <>
+                                <h1>Editar Empleado</h1>
+                                <button className="submit-btn" onClick={() => navigate('/employee/news')}>Crear Empleado</button></>
+                            }
+                            {isCreating && <h1>Agregar Nueva Empleado</h1>}
+                            <button className="submit-btn" onClick={() => navigate('/employee')}>Lista</button>
                         </div>
-                    </form>
+                        <form onSubmit={onSubmit} className="formulario">
+                            <FormInput label="Nombres" id="nombres" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required errorMessage={errors.firstName} />
+                            <FormInput label="Apellidos" id="apellidos" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required errorMessage={errors.lastName} />
+
+                            <FormInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required errorMessage={errors.email} />
+
+                            <FormInput label="Teléfono" type="tel" id="telefono" name="telefono" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} errorMessage={errors.phone} />
+
+                            <FormSelect
+                                label="Tipo de Identificación"
+                                id="tipo-id"
+                                name="tipo-id"
+                                value={formData.typeIdentification}
+                                onChange={(e) => setFormData({ ...formData, typeIdentification: e.target.value })}
+                                options={[
+                                    { value: "Cédula de Ciudadanía", label: "Cédula de Ciudadanía" },
+                                    { value: "Cédula de Extranjería", label: "Cédula de Extranjería" },
+                                    { value: "NIT", label: "NIT" },
+                                ]}
+                                required
+                            />
+
+                            <FormInput label="Número de Identificación" id="numero-id" name="numero-id" value={formData.numberIdentification} onChange={(e) => setFormData({ ...formData, numberIdentification: e.target.value })} required errorMessage={errors.numberIdentification} />
+
+                            <FormInput label="Digito de Verificación" id="verif" name="verif" value={formData.verificationDigit} onChange={(e) => setFormData({ ...formData, verificationDigit: e.target.value })} errorMessage={errors.verificationDigit} disabled={formData.typeIdentification !== "NIT"} />
+                            <FormSelect
+                                label="EPS"
+                                id="eps"
+                                name="eps"
+                                value={formData.healthId}
+                                onChange={(e) => setFormData({ ...formData, healthId: e.target.value })}
+                                options={healthEntities.map((activity) => ({
+                                    value: activity.id_health,
+                                    label: activity.health_name
+                                }))}
+                                required
+                            />
+                            <FormSelect
+                                label="Tipo de Sangre"
+                                id="blood_type"
+                                name="blood_type"
+                                value={formData.bloodId}
+                                onChange={(e) => setFormData({ ...formData, bloodId: e.target.value })}
+                                options={bloodTypes.map((activity) => ({
+                                    value: activity.id_blood,
+                                    label: activity.blood_name
+                                }))}
+                                required
+                            />
+
+                            <FormInput label="Extranjero" type="checkbox" id="foreigner" name="foreigner" checked={formData.foreigner === 1} onChange={(e) => setFormData({ ...formData, foreigner: e.target.checked ? 1 : 0 })} />
+
+                            <div className="form-actions">
+                                <button type="submit" className="submit-btn">Guardar</button>
+                                <button type="button" className="cancel-btn" onClick={() => navigate("/employee")}>Cancelar</button>
+                            </div>
+                        </form>
+                    </>
                 )}
             </main>
         </>

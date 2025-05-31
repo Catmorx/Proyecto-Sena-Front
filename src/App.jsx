@@ -9,6 +9,7 @@ import { Item } from "./views/Item.jsx";
 import { Login } from "./views/Login.jsx";
 import { Adress } from "./views/Adress.jsx";
 import { AuthProvider } from "../context/AuthContext.jsx";
+import { PrivateRoute } from "./components/PrivateRoute.jsx";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -22,6 +23,7 @@ function App() {
                 <AuthProvider>
                     <Routes>
                         <Route path="/login" element={<Login />}></Route>
+                         <Route element={<PrivateRoute />}>
                         <Route path="/" element={<LandingPage />}></Route>
                         <Route path="/customer" element={<Customer />}></Route>
                         <Route path="/customer/:id" element={<Customer />} />
@@ -35,7 +37,7 @@ function App() {
                         <Route path="/orders/:id" element={<Order />}></Route>
                         <Route path="/card" element={<Card />}></Route>
                         <Route path="/card/:id" element={<Card />}></Route>
-
+            </Route>
                     </Routes>
                 </AuthProvider>
             </BrowserRouter>
